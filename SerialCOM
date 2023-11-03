@@ -1,0 +1,94 @@
+using UnityEngine;
+using System;
+using System.Collections;
+using System.IO.Ports;
+
+public class SerialCOM : MonoBehaviour
+
+{
+
+#region parameters
+    //declare variables
+    //Port name
+public string port = "/dev/cu.usbmodem14101";
+    //port speed in bps
+    public int baudrate = 9600;
+
+    //declare the serial port
+    private SerialPort sp;
+
+    //boolean variable for reading values
+    bool isStreaming = false;
+
+    //geometry to modify
+    public GameObject sph;
+        #endregion
+
+
+
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        Open(); //this will create the port and start the readings
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (isStreaming)
+        {
+            string value = ReadSerialPort();
+            if (value != null && float.Parse(value) >=1.0f)
+            {
+                Debug.Log(value);
+
+            }
+        }
+
+    }
+
+
+
+    //opens the serial port and set the program to read values from it
+    public void Open()
+    {
+
+        isStreaming = true;
+
+        sp = new SerialPort(port, baudrate);
+        sp.ReadTimeout = 100;
+        sp.Open(); //this opens the serial port to get values
+        Debug.Log("port was opened successfully");
+    }
+
+    public string ReadSerialPort(int timeout = 50)
+    {
+
+        string message;
+
+        sp.ReadTimeout = timeout;
+        //we will try to read values from our serial port
+        try
+        {
+            message = sp.ReadLine();
+            return message;
+        }
+
+        catch(TimeoutException)
+        {
+            return null;
+        }
+    }
+
+    public void Close()
+    {
+        sp.Close(); //closes the serial port
+
+    }
+
+
+
+}
